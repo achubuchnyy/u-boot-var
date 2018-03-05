@@ -14,7 +14,7 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * SPDX-License-Identifier:	GPL-2.0+
  */
 #ifndef __MX6UL_VAR_DART_H
@@ -63,7 +63,7 @@
 
 /* NAND pin conflicts with usdhc2 */
 #ifdef CONFIG_SYS_BOOT_NAND
-#define CONFIG_SYS_FSL_USDHC_NUM	1
+#define CONFIG_SYS_FSL_USDHC_NUM	2
 #else
 #define CONFIG_SYS_FSL_USDHC_NUM	2
 #endif

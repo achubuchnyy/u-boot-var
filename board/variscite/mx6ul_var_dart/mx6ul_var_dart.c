@@ -176,20 +176,16 @@ static iomux_v3_cfg_t const usdhc1_pads[] = {
 	MX6_PAD_SD1_DATA3__USDHC1_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 };
 
-#ifndef CONFIG_SYS_USE_NAND
+
 static iomux_v3_cfg_t const usdhc2_pads[] = {
-	MX6_PAD_NAND_RE_B__USDHC2_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_NAND_WE_B__USDHC2_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_NAND_DATA00__USDHC2_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_NAND_DATA01__USDHC2_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_NAND_DATA02__USDHC2_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_NAND_DATA03__USDHC2_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_NAND_DATA04__USDHC2_DATA4 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_NAND_DATA05__USDHC2_DATA5 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_NAND_DATA06__USDHC2_DATA6 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
-	MX6_PAD_NAND_DATA07__USDHC2_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_CSI_VSYNC__USDHC2_CLK | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_CSI_HSYNC__USDHC2_CMD | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_LCD_DATA20__USDHC2_DATA0 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_LCD_DATA21__USDHC2_DATA1 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_LCD_DATA22__USDHC2_DATA2 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
+	MX6_PAD_LCD_DATA23__USDHC2_DATA3 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 };
-#else
+
 static iomux_v3_cfg_t const nand_pads[] = {
 	MX6_PAD_NAND_DATA00__RAWNAND_DATA00 | MUX_PAD_CTRL(GPMI_PAD_CTRL2),
 	MX6_PAD_NAND_DATA01__RAWNAND_DATA01 | MUX_PAD_CTRL(GPMI_PAD_CTRL2),
@@ -249,7 +245,7 @@ static void setup_gpmi_nand(void)
 	/* enable apbh clock gating */
 	setbits_le32(&mxc_ccm->CCGR0, MXC_CCM_CCGR0_APBHDMA_MASK);
 }
-#endif
+
 
 static void setup_iomux_uart(void)
 {
@@ -258,17 +254,17 @@ static void setup_iomux_uart(void)
 
 static struct fsl_esdhc_cfg usdhc_cfg[2] = {
 	{USDHC1_BASE_ADDR, 0, 4},
-#if !defined(CONFIG_SYS_USE_NAND)
+
 	{USDHC2_BASE_ADDR, 0, 8},
-#endif
+
 };
 
 /* SPL boot from first device. Swap the device in case of SPL & eMMC */
 static struct fsl_esdhc_cfg usdhc_cfg_emmc[2] = {
 	{USDHC2_BASE_ADDR, 0, 8},
-#if !defined(CONFIG_SYS_USE_NAND)
+
 	{USDHC1_BASE_ADDR, 0, 4},
-#endif
+
 };
 
 int mmc_get_env_devno(void)
@@ -349,14 +345,14 @@ int board_mmc_init(bd_t *bis)
 			usdhc_cfg[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
 			usdhc_cfg_emmc[0].sdhc_clk = mxc_get_clock(MXC_ESDHC_CLK);
 			break;
-#if !defined(CONFIG_SYS_USE_NAND)
+
 		case 1:
 			imx_iomux_v3_setup_multiple_pads(
 				usdhc2_pads, ARRAY_SIZE(usdhc2_pads));
 			usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
 			usdhc_cfg_emmc[1].sdhc_clk = mxc_get_clock(MXC_ESDHC2_CLK);
 			break;
-#endif
+
 		default:
 			printf("Warning: you configured more USDHC controllers (%d) than supported by the board\n", i + 1);
 			return 0;
@@ -632,8 +628,8 @@ int board_late_init(void)
 			case 0x02:
 				snprintf(fdt_filename, FDT_FILENAME_MAX_LEN, "%s",
 					imxtype == MXC_CPU_MX6ULL ?
-					"imx6ull-var-dart-sd_emmc.dtb" :
-					"imx6ul-var-dart-sd_emmc.dtb");
+					"imx6ull-var-dart-sd_nand.dtb" :
+					"imx6ul-var-dart-sd_nand.dtb");
 			break;
 			case 0x01:
 				snprintf(fdt_filename, FDT_FILENAME_MAX_LEN, "%s",
@@ -653,8 +649,8 @@ int board_late_init(void)
 		else
 				snprintf(fdt_filename, FDT_FILENAME_MAX_LEN, "%s",
 					imxtype == MXC_CPU_MX6ULL ?
-					"imx6ull-var-dart-sd_emmc.dtb" :
-					"imx6ul-var-dart-sd_emmc.dtb");
+					"imx6ull-var-dart-sd_nand.dtb" :
+					"imx6ul-var-dart-sd_nand.dtb");
 		break;
 	case VBOOT_DEVICE_NAND:
 		setenv("boot_dev", "nand");
@@ -702,7 +698,7 @@ int board_late_init(void)
 
 int checkboard(void)
 {
-	puts("Board: MX6UL Variscite DART\n");
+	puts("Board: MX6UL ARRIVAL\n");
 
 	return 0;
 }
